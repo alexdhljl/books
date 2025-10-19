@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ChinaReads 项目提案 2.5</title>
+    <title>ChinaReads 项目提案 2.6</title>
     <style>
         * {
             margin: 0;
@@ -11,47 +11,58 @@
             box-sizing: border-box;
         }
 
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: fixed;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
         }
 
-        .presentation {
-            width: 100vw;
-            min-height: 100vh;
-            overflow-x: hidden;
+        .container {
+            width: 100%;
+            height: 100%;
             position: relative;
+            overflow: hidden;
         }
 
         .slide {
             width: 100%;
-            min-height: 100vh;
+            height: 100%;
             position: absolute;
             top: 0;
             left: 0;
             display: none;
-            padding: 20px;
-            background: white;
             opacity: 0;
-            transform: translateX(100%);
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: opacity 0.5s ease;
         }
 
         .slide.active {
             display: block;
             opacity: 1;
-            transform: translateX(0);
-            position: relative;
         }
 
-        .slide.prev {
-            transform: translateX(-100%);
+        .slide-wrapper {
+            width: 100%;
+            height: calc(100% - 70px);
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            background: white;
+        }
+
+        .slide-content {
+            padding: 20px;
+            padding-bottom: 40px;
         }
 
         /* Cover Slide */
-        .cover {
+        .cover-wrapper {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             display: flex;
@@ -59,6 +70,11 @@
             justify-content: center;
             align-items: center;
             text-align: center;
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        .cover-content {
             padding: 30px 20px;
         }
 
@@ -73,54 +89,38 @@
             50% { transform: translateY(-10px); }
         }
 
-        .cover h1 {
+        .cover-wrapper h1 {
             font-size: 1.8em;
             margin-bottom: 15px;
             line-height: 1.4;
-            animation: fadeInUp 1s ease;
         }
 
-        .cover h2 {
+        .cover-wrapper h2 {
             font-size: 1.2em;
             font-weight: 300;
             margin-bottom: 20px;
             line-height: 1.5;
-            animation: fadeInUp 1.2s ease;
         }
 
-        .cover .subtitle {
-            font-size: 1em;
-            opacity: 0.9;
-            margin-bottom: 30px;
-            line-height: 1.6;
-            animation: fadeInUp 1.4s ease;
-        }
-
-        .cover .version {
+        .version {
             font-size: 0.95em;
             opacity: 0.85;
             margin-bottom: 30px;
             padding: 10px 20px;
             background: rgba(255,255,255,0.1);
             border-radius: 20px;
-            animation: fadeInUp 1.5s ease;
         }
 
-        .cover .contact {
+        .subtitle {
+            font-size: 1em;
+            opacity: 0.9;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .contact {
             font-size: 0.9em;
-            animation: fadeInUp 1.6s ease;
             line-height: 1.8;
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
         }
 
         /* Content Slides */
@@ -128,7 +128,6 @@
             border-left: 4px solid #667eea;
             padding-left: 15px;
             margin-bottom: 25px;
-            margin-top: 10px;
         }
 
         .slide-header h2 {
@@ -144,26 +143,31 @@
             font-weight: bold;
         }
 
-        .content {
+        .slide-header .subtitle-text {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .text-content {
             font-size: 1em;
             line-height: 1.7;
             color: #444;
-            padding-bottom: 80px;
         }
 
-        .content ul {
+        .text-content ul {
             list-style: none;
             padding-left: 0;
         }
 
-        .content li {
+        .text-content li {
             margin-bottom: 15px;
             padding-left: 25px;
             position: relative;
             line-height: 1.6;
         }
 
-        .content li:before {
+        .text-content li:before {
             content: "→";
             position: absolute;
             left: 0;
@@ -234,17 +238,15 @@
             margin: 10px 0;
         }
 
-        /* Mobile-optimized table */
-        .table-container {
+        /* Tables */
+        .table-wrapper {
             overflow-x: auto;
-            margin: 15px -20px;
-            padding: 0 20px;
+            margin: 15px 0;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 15px;
             font-size: 0.9em;
             min-width: 500px;
         }
@@ -259,8 +261,6 @@
             background: #667eea;
             color: white;
             font-weight: 600;
-            position: sticky;
-            top: 0;
         }
 
         tr:nth-child(even) {
@@ -274,48 +274,6 @@
         .growth-highlight {
             background: #f0fdf4 !important;
             font-weight: 600;
-        }
-
-        .timeline {
-            position: relative;
-            padding-left: 30px;
-        }
-
-        .timeline-item {
-            position: relative;
-            margin-bottom: 25px;
-        }
-
-        .timeline-item:before {
-            content: "";
-            position: absolute;
-            left: -22px;
-            top: 5px;
-            width: 12px;
-            height: 12px;
-            background: #667eea;
-            border-radius: 50%;
-            box-shadow: 0 0 0 3px #667eea30;
-        }
-
-        .timeline-item:after {
-            content: "";
-            position: absolute;
-            left: -16px;
-            top: 17px;
-            width: 2px;
-            height: calc(100% + 8px);
-            background: #667eea;
-        }
-
-        .timeline-item:last-child:after {
-            display: none;
-        }
-
-        .timeline-item h3 {
-            color: #667eea;
-            margin-bottom: 8px;
-            font-size: 1.1em;
         }
 
         .stats-grid {
@@ -346,19 +304,20 @@
         }
 
         /* Navigation */
-        .nav {
+        .nav-bar {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
+            height: 70px;
             display: flex;
-            gap: 0;
             background: white;
             box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
             z-index: 1000;
+            border-top: 2px solid #667eea;
         }
 
-        .nav button {
+        .nav-bar button {
             flex: 1;
             background: #667eea;
             color: white;
@@ -371,20 +330,20 @@
             border-right: 1px solid #5568d3;
         }
 
-        .nav button:last-child {
+        .nav-bar button:last-child {
             border-right: none;
         }
 
-        .nav button:active {
+        .nav-bar button:active {
             background: #5568d3;
         }
 
-        .nav button:disabled {
+        .nav-bar button:disabled {
             opacity: 0.4;
             cursor: not-allowed;
         }
 
-        .slide-counter {
+        .page-counter {
             position: fixed;
             top: 15px;
             right: 15px;
@@ -402,459 +361,510 @@
             font-size: 1.3em;
             margin-right: 8px;
         }
-
-        /* Vision slide special styling */
-        .vision-content {
-            max-width: 100%;
-            color: white;
-            font-size: 1.1em;
-            line-height: 1.8;
-        }
-
-        .vision-content p {
-            margin-bottom: 25px;
-        }
-
-        .vision-content ul {
-            text-align: left;
-            list-style: none;
-        }
-
-        .vision-content li {
-            margin-bottom: 15px;
-            padding-left: 30px;
-        }
-
-        .vision-content li:before {
-            content: attr(data-icon);
-            position: absolute;
-            left: 0;
-            font-size: 1.2em;
-        }
     </style>
 </head>
 <body>
-    <div class="presentation" id="presentation">
+    <div class="container">
         <!-- Slide 1: Cover -->
-        <div class="slide active cover">
-            <div class="logo">📚</div>
-            <h1>ChinaReads<br>项目提案</h1>
-            <h2>AI绘本智能循环系统</h2>
-            <div class="version">📘 2.5 投资提案版 | 含未来三年盈利预期</div>
-            <div class="subtitle">AI-Powered Picture Book<br>Circular Economy for<br>Chinese Families</div>
-            <div class="contact">
-                📧 hello@chinesereads.com<br>
-                🌐 demo.chinesereads.com
+        <div class="slide active">
+            <div class="slide-wrapper cover-wrapper">
+                <div class="cover-content">
+                    <div class="logo">📚</div>
+                    <h1>ChinaReads 项目提案</h1>
+                    <h2>AI绘本智能循环系统</h2>
+                    <div class="version">📘 2.6 投资提案完整版 | 2025年</div>
+                    <div class="subtitle">AI-Powered Picture Book<br>Circular Economy for<br>Chinese Families</div>
+                    <div class="contact">
+                        📧 hello@chinesereads.com<br>
+                        🌐 demo.chinesereads.com
+                    </div>
+                </div>
             </div>
         </div>
 
         <!-- Slide 2: Vision -->
         <div class="slide">
-            <div class="slide-header">
-                <div class="number">一、</div>
-                <h2>项目愿景</h2>
-            </div>
-            <div class="content">
-                <div class="highlight">
-                    <h3>核心问题</h3>
-                    <p>在北美、欧洲等华人家庭中，中文绘本面临成本高、利用率低、缺乏系统指导等问题。</p>
+            <div class="slide-wrapper">
+                <div class="slide-content">
+                    <div class="slide-header">
+                        <div class="number">一、</div>
+                        <h2>项目愿景</h2>
+                    </div>
+                    <div class="text-content">
+                        <div class="highlight">
+                            <h3>核心问题</h3>
+                            <p>在北美、欧洲等华人家庭中，中文绘本面临成本高、利用率低、缺乏系统指导等问题。</p>
+                        </div>
+                        <ul>
+                            <li>通过"<strong>AI 推荐 → 家庭月度阅读 → 中文成长追踪 → 绘本回收再流通</strong>"闭环</li>
+                            <li>让绘本像流媒体内容一样持续复用</li>
+                            <li>强调"因材施教"与"数据驱动成长"</li>
+                            <li>实现中文教育的<strong>个性化、可持续化</strong></li>
+                        </ul>
+                    </div>
                 </div>
-                <ul>
-                    <li>通过"<strong>AI 推荐 → 家庭月度阅读 → 中文成长追踪 → 绘本回收再流通</strong>"闭环</li>
-                    <li>让绘本像流媒体内容一样持续复用</li>
-                    <li>强调"因材施教"与"数据驱动成长"</li>
-                    <li>实现中文教育的<strong>个性化、可持续化</strong></li>
-                </ul>
             </div>
         </div>
 
         <!-- Slide 3: Core Features -->
         <div class="slide">
-            <div class="slide-header">
-                <div class="number">二、</div>
-                <h2>核心功能模块</h2>
-            </div>
-            <div class="content">
-                <div class="card">
-                    <h3>1️⃣ AI 智能推荐系统</h3>
-                    <p>基于年龄、性格、心理与兴趣匹配阅读计划</p>
-                </div>
-                <div class="card">
-                    <h3>2️⃣ 月度 AI 阅读计划</h3>
-                    <p>每月推荐 10–12 本绘本，自动生成阅读顺序与关键词</p>
-                </div>
-                <div class="card">
-                    <h3>3️⃣ 中文成长追踪</h3>
-                    <p>阅读后语音打卡，AI 分析理解率并更新语言等级</p>
-                </div>
-                <div class="card">
-                    <h3>4️⃣ 排行榜与奖励机制</h3>
-                    <p>Top3 家庭免费获次月邮寄</p>
-                </div>
-                <div class="highlight">
-                    <h3>5️⃣ 回收再流通系统</h3>
-                    <p>一折收、三折售，毛利 200%</p>
+            <div class="slide-wrapper">
+                <div class="slide-content">
+                    <div class="slide-header">
+                        <div class="number">二、</div>
+                        <h2>核心功能模块</h2>
+                    </div>
+                    <div class="text-content">
+                        <div class="card">
+                            <h3>1️⃣ AI 智能推荐系统</h3>
+                            <p>基于年龄、性格、心理与兴趣匹配阅读计划</p>
+                        </div>
+                        <div class="card">
+                            <h3>2️⃣ 月度 AI 阅读计划</h3>
+                            <p>每月推荐 10–12 本绘本，自动生成阅读顺序与关键词</p>
+                        </div>
+                        <div class="card">
+                            <h3>3️⃣ 中文成长追踪</h3>
+                            <p>阅读后语音打卡，AI 分析理解率并更新语言等级</p>
+                        </div>
+                        <div class="card">
+                            <h3>4️⃣ 排行榜与奖励机制</h3>
+                            <p>Top3 家庭免费获次月邮寄</p>
+                        </div>
+                        <div class="highlight">
+                            <h3>5️⃣ 回收再流通系统</h3>
+                            <p>一折收、三折售，毛利 200%</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Slide 4: AI Logic -->
         <div class="slide">
-            <div class="slide-header">
-                <div class="number">三、</div>
-                <h2>AI 推荐与成长逻辑</h2>
-            </div>
-            <div class="content">
-                <div class="highlight">
-                    <h3>输入项</h3>
-                    <p>年龄、中文等级、心理标签与兴趣主题 → AI 生成个性化阅读包</p>
-                </div>
-                <ul>
-                    <li><strong>脾气暴躁</strong> → 推荐《情绪小怪兽》《小火龙不生气》</li>
-                    <li><strong>胆小退缩</strong> → 推荐《我能行》《鼓起勇气自己来》</li>
-                    <li><strong>阅读理解度 ≥ 80%</strong> 自动升级中文等级</li>
-                </ul>
-                <div class="highlight" style="margin-top: 25px;">
-                    <h3>成长等级体系</h3>
-                    <p><span class="emoji">📖</span>L1 启蒙 → L2 词汇理解 → L3 故事理解 → L4 自主阅读</p>
+            <div class="slide-wrapper">
+                <div class="slide-content">
+                    <div class="slide-header">
+                        <div class="number">三、</div>
+                        <h2>AI 推荐与成长逻辑</h2>
+                    </div>
+                    <div class="text-content">
+                        <div class="highlight">
+                            <h3>输入项</h3>
+                            <p>年龄、中文等级、心理标签与兴趣主题 → AI 生成个性化阅读包</p>
+                        </div>
+                        <ul>
+                            <li><strong>脾气暴躁</strong> → 推荐《情绪小怪兽》《小火龙不生气》</li>
+                            <li><strong>胆小退缩</strong> → 推荐《我能行》《鼓起勇气自己来》</li>
+                            <li><strong>阅读理解度 ≥ 80%</strong> 自动升级中文等级</li>
+                        </ul>
+                        <div class="highlight" style="margin-top: 25px;">
+                            <h3>成长等级体系</h3>
+                            <p><span class="emoji">📖</span>L1 启蒙 → L2 词汇理解 → L3 故事理解 → L4 自主阅读</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Slide 5: Reading & Rewards -->
         <div class="slide">
-            <div class="slide-header">
-                <div class="number">四、</div>
-                <h2>阅读与激励体系</h2>
-            </div>
-            <div class="content">
-                <div class="card">
-                    <h3>成长等级</h3>
-                    <p>L1 启蒙<br>L2 词汇理解<br>L3 故事理解<br>L4 自主阅读</p>
-                </div>
-                <div class="card">
-                    <h3>排行榜系统</h3>
-                    <p>每月积分排名<br>Top3 免费邮寄<br>前 10 获额外绘本</p>
-                </div>
-                <div class="highlight">
-                    <h3><span class="emoji">📊</span>AI 成长报告</h3>
-                    <ul style="margin-top: 10px;">
-                        <li>阅读时长统计</li>
-                        <li>词汇增长曲线</li>
-                        <li>推荐下阶段内容</li>
-                    </ul>
+            <div class="slide-wrapper">
+                <div class="slide-content">
+                    <div class="slide-header">
+                        <div class="number">四、</div>
+                        <h2>阅读与激励体系</h2>
+                    </div>
+                    <div class="text-content">
+                        <div class="card">
+                            <h3>成长等级</h3>
+                            <p>L1 启蒙<br>L2 词汇理解<br>L3 故事理解<br>L4 自主阅读</p>
+                        </div>
+                        <div class="card">
+                            <h3>排行榜系统</h3>
+                            <p>每月积分排名<br>Top3 免费邮寄<br>前 10 获额外绘本</p>
+                        </div>
+                        <div class="highlight">
+                            <h3><span class="emoji">📊</span>AI 成长报告</h3>
+                            <ul style="margin-top: 10px;">
+                                <li>阅读时长统计</li>
+                                <li>词汇增长曲线</li>
+                                <li>推荐下阶段内容</li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Slide 6: Subscription Plans -->
         <div class="slide">
-            <div class="slide-header">
-                <div class="number">五、</div>
-                <h2>订阅计划（优化版）</h2>
-            </div>
-            <div class="content">
-                <div class="card">
-                    <h3>基础计划</h3>
-                    <p><strong>6 本/月 · $29</strong><br>适合启蒙阶段</p>
-                </div>
-                <div class="card">
-                    <h3>进阶计划</h3>
-                    <p><strong>10 本/月 · $45</strong><br>覆盖一月阅读量</p>
-                </div>
-                <div class="card">
-                    <h3>旗舰计划</h3>
-                    <p><strong>12 本/月 · $49</strong><br>双主题书单 + 高阶任务卡</p>
-                </div>
-                <div class="card">
-                    <h3>年度会员</h3>
-                    <p><strong>120 本/年 · $499</strong><br>含两次免费邮寄与年度测评报告</p>
+            <div class="slide-wrapper">
+                <div class="slide-content">
+                    <div class="slide-header">
+                        <div class="number">五、</div>
+                        <h2>订阅计划（优化版）</h2>
+                    </div>
+                    <div class="text-content">
+                        <div class="card">
+                            <h3>基础计划</h3>
+                            <p><strong>6 本/月 · $29</strong><br>适合启蒙阶段</p>
+                        </div>
+                        <div class="card">
+                            <h3>进阶计划</h3>
+                            <p><strong>10 本/月 · $45</strong><br>覆盖一月阅读量</p>
+                        </div>
+                        <div class="card">
+                            <h3>旗舰计划</h3>
+                            <p><strong>12 本/月 · $49</strong><br>双主题书单 + 高阶任务卡</p>
+                        </div>
+                        <div class="card">
+                            <h3>年度会员</h3>
+                            <p><strong>120 本/年 · $499</strong><br>含两次免费邮寄与年度测评报告</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Slide 7: Revenue Model -->
         <div class="slide">
-            <div class="slide-header">
-                <div class="number">六、</div>
-                <h2>盈利模式（2025 更新）</h2>
-            </div>
-            <div class="content">
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>收入渠道</th>
-                                <th>收益说明</th>
-                                <th>毛利率</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><strong>订阅收入</strong></td>
-                                <td>$45 × 100家庭<br>= $4,500/月</td>
-                                <td>35%</td>
-                            </tr>
-                            <tr>
-                                <td><strong>绘本回收再售</strong></td>
-                                <td>1折收→3折售<br>净赚$2–3/本</td>
-                                <td>200%</td>
-                            </tr>
-                            <tr>
-                                <td><strong>学校租赁合作</strong></td>
-                                <td>100册/校<br>$800/校</td>
-                                <td>40%</td>
-                            </tr>
-                            <tr>
-                                <td><strong>AI 数据服务</strong></td>
-                                <td>匿名报告<br>$1,000/年</td>
-                                <td>80%</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="highlight-green" style="margin-top: 20px;">
-                    <h3>首年预测</h3>
-                    <p><strong>100 家庭 + 3 所学校</strong></p>
-                    <p>月营收约 <strong>$7,500–8,000</strong></p>
-                    <p>综合毛利率约 <strong>45–50%</strong></p>
+            <div class="slide-wrapper">
+                <div class="slide-content">
+                    <div class="slide-header">
+                        <div class="number">六、</div>
+                        <h2>盈利模式（2025 更新）</h2>
+                    </div>
+                    <div class="text-content">
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>收入渠道</th>
+                                        <th>收益说明</th>
+                                        <th>毛利率</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>订阅收入</strong></td>
+                                        <td>$45 × 100家庭<br>= $4,500/月</td>
+                                        <td>35%</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>绘本回收再售</strong></td>
+                                        <td>1折收→3折售<br>净赚$2–3/本</td>
+                                        <td>200%</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>学校租赁合作</strong></td>
+                                        <td>100册/校<br>$800/校</td>
+                                        <td>40%</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>AI 数据服务</strong></td>
+                                        <td>匿名报告<br>$1,000/年</td>
+                                        <td>80%</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="highlight-green">
+                            <h3>首年预测</h3>
+                            <p><strong>100 家庭 + 3 所学校</strong></p>
+                            <p>月营收约 <strong>$7,500–8,000</strong></p>
+                            <p>综合毛利率约 <strong>45–50%</strong></p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Slide 8: 3-Year Profit Projection -->
         <div class="slide">
-            <div class="slide-header">
-                <div class="number">七、</div>
-                <h2>未来三年盈利预期</h2>
-                <div style="font-size: 0.9em; color: #666; margin-top: 5px;">2025–2027</div>
-            </div>
-            <div class="content">
-                <div class="table-container">
-                    <table class="growth-table">
-                        <thead>
-                            <tr>
-                                <th>年份</th>
-                                <th>用户规模</th>
-                                <th>年营收</th>
-                                <th>净利润</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><strong>2025</strong></td>
-                                <td>100家庭+3校</td>
-                                <td>$90,000</td>
-                                <td>$40,000</td>
-                            </tr>
-                            <tr class="growth-highlight">
-                                <td><strong>2026</strong></td>
-                                <td>500家庭+15校</td>
-                                <td>$360,000</td>
-                                <td>$150,000</td>
-                            </tr>
-                            <tr class="growth-highlight">
-                                <td><strong>2027</strong></td>
-                                <td>2000家庭+50校</td>
-                                <td>$1,200,000</td>
-                                <td>$600,000</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="card profit-card" style="margin-top: 20px;">
-                    <h3>📈 增长驱动</h3>
-                    <p><strong>2025</strong>：订阅模型跑通，形成口碑传播</p>
-                    <p><strong>2026</strong>：推出 App 与语音测评，提升续订率</p>
-                    <p><strong>2027</strong>：品牌合作与出版授权，规模效应</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Slide 9: Detailed Year Breakdown -->
-        <div class="slide">
-            <div class="slide-header">
-                <div class="number">七、</div>
-                <h2>三年增长详情</h2>
-            </div>
-            <div class="content">
-                <div class="card profit-card">
-                    <h3>2025 年 - 试点阶段</h3>
-                    <div class="stats-grid">
-                        <div class="stat-box">
-                            <div class="stat-number">$7.5K</div>
-                            <div class="stat-label">月均营收</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="stat-number">45%</div>
-                            <div class="stat-label">毛利率</div>
-                        </div>
+            <div class="slide-wrapper">
+                <div class="slide-content">
+                    <div class="slide-header">
+                        <div class="number">七、</div>
+                        <h2>未来三年盈利预期</h2>
+                        <div class="subtitle-text">2025–2027</div>
                     </div>
-                </div>
-
-                <div class="card profit-card">
-                    <h3>2026 年 - 稳健增长期</h3>
-                    <div class="stats-grid">
-                        <div class="stat-box">
-                            <div class="stat-number">$30K</div>
-                            <div class="stat-label">月均营收</div>
+                    <div class="text-content">
+                        <div class="table-wrapper">
+                            <table class="growth-table">
+                                <thead>
+                                    <tr>
+                                        <th>年份</th>
+                                        <th>用户规模</th>
+                                        <th>年营收</th>
+                                        <th>净利润</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>2025</strong></td>
+                                        <td>100家庭+3校</td>
+                                        <td>$90,000</td>
+                                        <td>$40,000</td>
+                                    </tr>
+                                    <tr class="growth-highlight">
+                                        <td><strong>2026</strong></td>
+                                        <td>500家庭+15校</td>
+                                        <td>$360,000</td>
+                                        <td>$150,000</td>
+                                    </tr>
+                                    <tr class="growth-highlight">
+                                        <td><strong>2027</strong></td>
+                                        <td>2000家庭+50校</td>
+                                        <td>$1,200,000</td>
+                                        <td>$600,000</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
-                        <div class="stat-box">
-                            <div class="stat-number">50%</div>
-                            <div class="stat-label">毛利率</div>
+                        <div class="card profit-card">
+                            <h3>📈 增长驱动</h3>
+                            <p><strong>2025</strong>：订阅模型跑通，形成口碑传播</p>
+                            <p><strong>2026</strong>：推出 App 与语音测评，提升续订率</p>
+                            <p><strong>2027</strong>：品牌合作与出版授权，规模效应</p>
                         </div>
-                    </div>
-                    <p style="margin-top: 15px;">推出 App 与语音测评功能，提升续订率</p>
-                </div>
-
-                <div class="card profit-card">
-                    <h3>2027 年 - 扩张期</h3>
-                    <div class="stats-grid">
-                        <div class="stat-box">
-                            <div class="stat-number">$100K</div>
-                            <div class="stat-label">月均营收</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="stat-number">55%</div>
-                            <div class="stat-label">毛利率</div>
-                        </div>
-                    </div>
-                    <p style="margin-top: 15px;">品牌合作与出版授权，形成规模效应</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Slide 10: Team Structure -->
-        <div class="slide">
-            <div class="slide-header">
-                <div class="number">八、</div>
-                <h2>团队架构</h2>
-                <div style="font-size: 0.9em; color: #666; margin-top: 5px;">最小可行团队 4 人</div>
-            </div>
-            <div class="content">
-                <div class="card">
-                    <h3>CEO</h3>
-                    <p>战略规划、内容审核、品牌合作</p>
-                </div>
-                <div class="card">
-                    <h3>技术负责人</h3>
-                    <p>AI 系统与物流支付集成</p>
-                </div>
-                <div class="card">
-                    <h3>内容运营助理</h3>
-                    <p>绘本录入、榜单与客服</p>
-                </div>
-                <div class="card">
-                    <h3>市场经理</h3>
-                    <p>家长社群运营与学校合作</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Slide 11: Roadmap -->
-        <div class="slide">
-            <div class="slide-header">
-                <div class="number">九、</div>
-                <h2>推进计划</h2>
-                <div style="font-size: 0.9em; color: #666; margin-top: 5px;">12 周 MVP</div>
-            </div>
-            <div class="content">
-                <div class="timeline">
-                    <div class="timeline-item">
-                        <h3>Year 1</h3>
-                        <p>100 家庭 + 5 校<br>形成数据标准化机制</p>
-                    </div>
-                    <div class="timeline-item">
-                        <h3>Year 2</h3>
-                        <p>500 家庭 + 20 校<br>推出 App 与语音测评</p>
-                    </div>
-                    <div class="timeline-item">
-                        <h3>Year 3</h3>
-                        <p>2000 家庭 + 出版社合作<br>构建生态级平台</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Slide 14: Risks -->
+        <!-- Slide 9: Team Structure -->
         <div class="slide">
-            <div class="slide-header">
-                <div class="number">十二、</div>
-                <h2>风险与合规要点</h2>
+            <div class="slide-wrapper">
+                <div class="slide-content">
+                    <div class="slide-header">
+                        <div class="number">八、</div>
+                        <h2>团队架构</h2>
+                        <div class="subtitle-text">最小可行团队 4 人</div>
+                    </div>
+                    <div class="text-content">
+                        <div class="card">
+                            <h3>CEO</h3>
+                            <p>战略规划、心理内容审核、品牌合作</p>
+                        </div>
+                        <div class="card">
+                            <h3>技术负责人</h3>
+                            <p>AI 系统与物流支付集成</p>
+                        </div>
+                        <div class="card">
+                            <h3>内容运营助理</h3>
+                            <p>绘本录入、榜单与客服</p>
+                        </div>
+                        <div class="card">
+                            <h3>市场经理</h3>
+                            <p>家长社群运营与学校合作</p>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="content">
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>类别</th>
-                                <th>风险</th>
-                                <th>策略</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>版权合规</td>
-                                <td>二手流通规范</td>
-                                <td>正版来源授权</td>
-                            </tr>
-                            <tr>
-                                <td>物流延误</td>
-                                <td>破损延误</td>
-                                <td>加固保险追踪</td>
-                            </tr>
-                            <tr>
-                                <td>模型偏差</td>
-                                <td>推荐失真</td>
-                                <td>人工校验测试</td>
-                            </tr>
-                            <tr>
-                                <td>现金流</td>
-                                <td>库存不匹配</td>
-                                <td>滚动预测采购</td>
-                            </tr>
-                            <tr>
-                                <td>数据安全</td>
-                                <td>隐私保护</td>
-                                <td>COPPA合规加密</td>
-                            </tr>
-                        </tbody>
-                    </table>
+        </div>
+
+        <!-- Slide 10: Roadmap -->
+        <div class="slide">
+            <div class="slide-wrapper">
+                <div class="slide-content">
+                    <div class="slide-header">
+                        <div class="number">九、</div>
+                        <h2>推进计划</h2>
+                        <div class="subtitle-text">12 周 MVP</div>
+                    </div>
+                    <div class="text-content">
+                        <div class="card">
+                            <h3>Phase 1（1–2 周）</h3>
+                            <p>绘本数据录入 + 家长调研</p>
+                        </div>
+                        <div class="card">
+                            <h3>Phase 2（3–6 周）</h3>
+                            <p>AI 推荐、排行榜、成长曲线上线</p>
+                        </div>
+                        <div class="card">
+                            <h3>Phase 3（7–10 周）</h3>
+                            <p>首批 50 家庭试运营</p>
+                        </div>
+                        <div class="card">
+                            <h3>Phase 4（11–12 周）</h3>
+                            <p>学校租赁与回收系统上线</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: School Rental -->
+        <div class="slide">
+            <div class="slide-wrapper">
+                <div class="slide-content">
+                    <div class="slide-header">
+                        <div class="number">十、</div>
+                        <h2>纽约学校租赁计划</h2>
+                    </div>
+                    <div class="text-content">
+                        <div class="highlight">
+                            <h3>服务内容</h3>
+                            <p>半年租赁 100 册中文绘本，附阅读建议与活动方案</p>
+                        </div>
+                        <ul>
+                            <li><strong>定价</strong>：$800/校（含邮寄与维护）</li>
+                            <li><strong>增值服务</strong>：可加购主题包 $199/套</li>
+                            <li><strong>目标客户</strong>：纽约/新泽西地区中文学校与社区图书馆</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12: Future Expansion -->
+        <div class="slide">
+            <div class="slide-wrapper">
+                <div class="slide-content">
+                    <div class="slide-header">
+                        <div class="number">十一、</div>
+                        <h2>未来扩展与长期规划</h2>
+                    </div>
+                    <div class="text-content">
+                        <div class="card">
+                            <h3>Year 1</h3>
+                            <p>100 家庭 + 5 校<br>形成数据标准化机制</p>
+                        </div>
+                        <div class="card">
+                            <h3>Year 2</h3>
+                            <p>500 家庭 + 20 校<br>推出 App 与语音测评</p>
+                        </div>
+                        <div class="card">
+                            <h3>Year 3</h3>
+                            <p>2000 家庭 + 出版社合作<br>构建生态级平台</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 13: Risks -->
+        <div class="slide">
+            <div class="slide-wrapper">
+                <div class="slide-content">
+                    <div class="slide-header">
+                        <div class="number">十二、</div>
+                        <h2>风险与合规要点</h2>
+                    </div>
+                    <div class="text-content">
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>类别</th>
+                                        <th>风险</th>
+                                        <th>应对策略</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>版权合规</td>
+                                        <td>二手流通规范</td>
+                                        <td>正版来源授权</td>
+                                    </tr>
+                                    <tr>
+                                        <td>物流延误</td>
+                                        <td>破损延误</td>
+                                        <td>加固保险追踪</td>
+                                    </tr>
+                                    <tr>
+                                        <td>模型偏差</td>
+                                        <td>推荐失真</td>
+                                        <td>人工校验测试</td>
+                                    </tr>
+                                    <tr>
+                                        <td>现金流</td>
+                                        <td>库存不匹配</td>
+                                        <td>滚动预测采购</td>
+                                    </tr>
+                                    <tr>
+                                        <td>数据安全</td>
+                                        <td>隐私保护</td>
+                                        <td>COPPA合规加密</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 14: ROI Analysis -->
+        <div class="slide">
+            <div class="slide-wrapper">
+                <div class="slide-content">
+                    <div class="slide-header">
+                        <div class="number">十三、</div>
+                        <h2>项目亮点与投资回报分析</h2>
+                        <div class="subtitle-text">ROI</div>
+                    </div>
+                    <div class="text-content">
+                        <div class="card profit-card">
+                            <h3>🎯 产品创新</h3>
+                            <p>AI 推荐 + 成长追踪 + 回收流通闭环，全球首创中文绘本智能生态</p>
+                        </div>
+                        <div class="card profit-card">
+                            <h3>📈 用户增长</h3>
+                            <p>低成本拉新 + 高复购率<br>月留存率 <strong>&gt;85%</strong></p>
+                        </div>
+                        <div class="card profit-card">
+                            <h3>💰 盈利能力</h3>
+                            <p>固定200%毛利率结构<br>+ SaaS数据订阅模式</p>
+                        </div>
+                        <div class="highlight-green">
+                            <h3>🎁 投资回报</h3>
+                            <div class="profit-number">ROI &gt; 300%</div>
+                            <p>预计 3 年内净利润 <strong>$600,000</strong></p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Slide 15: Vision Summary -->
-        <div class="slide cover">
-            <div class="logo">💡</div>
-            <h1>愿景总结</h1>
-            <div class="vision-content">
-                <p>我们不只是卖绘本，而是让每一本书都重新<strong>"被阅读、被理解、被成长"</strong></p>
-                <ul>
-                    <li data-icon="✨">AI 让中文教育个性化</li>
-                    <li data-icon="📊">数据让成长可视化</li>
-                    <li data-icon="♻️">循环让文化永续化</li>
-                </ul>
-                <div class="highlight-green" style="margin-top: 40px; background: rgba(255,255,255,0.1); border-left: 4px solid white;">
-                    <h3 style="color: white;">三年目标</h3>
-                    <div class="profit-number" style="color: white;">$1.2M 年营收</div>
-                    <p>2000 家庭 + 50 校合作</p>
+        <div class="slide">
+            <div class="slide-wrapper cover-wrapper">
+                <div class="cover-content">
+                    <div class="logo">💡</div>
+                    <h1>愿景总结</h1>
+                    <div style="max-width: 100%; color: white; font-size: 1.1em; line-height: 1.8; margin: 30px 0;">
+                        <p style="margin-bottom: 25px;">我们不只是卖绘本，而是让每一本书都重新<strong>"被阅读、被理解、被成长"</strong></p>
+                        <div class="text-content" style="color: white;">
+                            <ul style="text-align: left; list-style: none;">
+                                <li>✨ AI 让中文教育个性化</li>
+                                <li>📊 数据让成长可视化</li>
+                                <li>♻️ 循环让文化永续化</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="highlight-green" style="background: rgba(255,255,255,0.1); border-left: 4px solid white; margin-top: 40px;">
+                        <h3 style="color: white;">三年目标</h3>
+                        <div class="profit-number" style="color: white;">$1.2M 年营收</div>
+                        <p>2000 家庭 + 50 校合作</p>
+                    </div>
+                    <div class="contact" style="margin-top: 40px;">
+                        📧 hello@chinesereads.com<br>
+                        🌐 demo.chinesereads.com
+                    </div>
                 </div>
-            </div>
-            <div class="contact" style="margin-top: 40px;">
-                📧 hello@chinesereads.com<br>
-                🌐 demo.chinesereads.com
             </div>
         </div>
     </div>
 
-    <div class="slide-counter">
+    <div class="page-counter">
         <span id="current">1</span> / <span id="total">15</span>
     </div>
 
-    <div class="nav">
-        <button id="prevBtn" onclick="changeSlide(-1)">← 上一页</button>
-        <button id="nextBtn" onclick="changeSlide(1)">下一页 →</button>
+    <div class="nav-bar">
+        <button id="prevBtn" onclick="prevSlide()">← 上一页</button>
+        <button id="nextBtn" onclick="nextSlide()">下一页 →</button>
     </div>
 
     <script>
@@ -864,85 +874,50 @@
 
         document.getElementById('total').textContent = totalSlides;
 
-        function showSlide(n) {
-            slides[currentSlide].classList.remove('active');
-            slides[currentSlide].classList.add('prev');
+        function showSlide(index) {
+            // Hide all slides
+            slides.forEach(slide => {
+                slide.classList.remove('active');
+            });
             
-            currentSlide = (n + totalSlides) % totalSlides;
+            // Show current slide
+            slides[index].classList.add('active');
             
-            slides[currentSlide].classList.remove('prev');
-            slides[currentSlide].classList.add('active');
+            // Scroll to top
+            const wrapper = slides[index].querySelector('.slide-wrapper');
+            if (wrapper) {
+                wrapper.scrollTop = 0;
+            }
             
-            document.getElementById('current').textContent = currentSlide + 1;
+            // Update counter
+            document.getElementById('current').textContent = index + 1;
             
-            document.getElementById('prevBtn').disabled = currentSlide === 0;
-            document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+            // Update buttons
+            document.getElementById('prevBtn').disabled = index === 0;
+            document.getElementById('nextBtn').disabled = index === totalSlides - 1;
         }
 
-        function changeSlide(direction) {
-            showSlide(currentSlide + direction);
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                showSlide(currentSlide);
+            }
         }
 
-        // Touch support disabled - only buttons work
-        // Users can only navigate using the bottom navigation buttons
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                showSlide(currentSlide);
+            }
+        }
 
         // Keyboard support
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowLeft' && currentSlide > 0) changeSlide(-1);
-            if (e.key === 'ArrowRight' && currentSlide < totalSlides - 1) changeSlide(1);
+            if (e.key === 'ArrowLeft') prevSlide();
+            if (e.key === 'ArrowRight') nextSlide();
         });
 
-        showSlide(0);
-    </script>
-</body>
-</html>
-                        <h3>Phase 1（1–2 周）</h3>
-                        <p>绘本数据录入 + 家长调研</p>
-                    </div>
-                    <div class="timeline-item">
-                        <h3>Phase 2（3–6 周）</h3>
-                        <p>AI 推荐、排行榜、成长曲线上线</p>
-                    </div>
-                    <div class="timeline-item">
-                        <h3>Phase 3（7–10 周）</h3>
-                        <p>首批 50 家庭试运营</p>
-                    </div>
-                    <div class="timeline-item">
-                        <h3>Phase 4（11–12 周）</h3>
-                        <p>学校租赁与回收系统上线</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Slide 12: School Rental -->
-        <div class="slide">
-            <div class="slide-header">
-                <div class="number">十、</div>
-                <h2>纽约学校租赁计划</h2>
-            </div>
-            <div class="content">
-                <div class="highlight">
-                    <h3>服务内容</h3>
-                    <p>半年租赁 100 册中文绘本，附阅读建议与活动方案</p>
-                </div>
-                <ul>
-                    <li><strong>定价</strong>：$800/校（含邮寄与维护）</li>
-                    <li><strong>增值服务</strong>：可加购主题包 $199/套</li>
-                    <li><strong>目标客户</strong>：纽约/新泽西地区中文学校与社区图书馆</li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- Slide 13: Future Expansion -->
-        <div class="slide">
-            <div class="slide-header">
-                <div class="number">十一、</div>
-                <h2>未来扩展与长期规划</h2>
-            </div>
-            <div class="content">
-                <div class="timeline">
-                    <div class="timeline-item">
+        // Initialize
         showSlide(0);
     </script>
 </body>
